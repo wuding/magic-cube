@@ -45,3 +45,16 @@ HTTP 请求方法和请求地址转换标准化后的句柄
 
 - 未找到：_notfound
 - 缺省：_default
+
+
+
+## 解析优先级
+
+| 模块    | 方法    | 控制器             | 动作              |              |
+| ------- | ------- | ------------------ | ----------------- | ------------ |
+| module  | method  | controler          | action            | 完全匹配     |
+| module  | _method | controler          | action            | 方法未定义   |
+| module  |         | controler          | _action           | 动作未定义   |
+| module  |         | _controller        | controler,_action | 控制器未定义 |
+| _module |         | module,_controller | controler,_action | 模块未定义   |
+
