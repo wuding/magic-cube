@@ -38,6 +38,9 @@ class Dispatcher
             $uriInfo = $this->parseHandler($handler);
         }
 
+        $fixed = $this->fixedUriInfo($uriInfo);
+        $className = $this->getClassName($fixed);
+        $object = $this->run($className, $fixed);
         print_r(get_defined_vars());
     }
 
@@ -235,5 +238,45 @@ class Dispatcher
             'action' => $action,
             'param' => $param,
         );
+    }
+
+    public function fixedUriInfo($vars)
+    {
+        extract($vars);
+
+        $module = $module ? : 'index';
+        $controller = $controller ? : 'index';
+        $action = $action ? : 'index';
+
+        return array(
+            'method' => $method,
+            'module' => $this->fixedName($module),
+            'controller' => $this->fixedName($controller),
+            'action' => $action,
+            'param' => $param,
+        );
+    }
+
+    public function fixedName($str)
+    {
+        return $str = ucfirst($str);
+    }
+
+    public function getClassName($vars)
+    {
+        extract($vars);
+
+        $str = "/App/$module/controller/$controller";
+        return $className = preg_replace('/\//', '\\', $str);
+    }
+
+    public function run($class, $uriInfo = [])
+    {
+        $vars = array(
+            'uriInfo' => $uriInfo,
+        );
+
+        $object = new $class($vars);
+        return $object;
     }
 }
