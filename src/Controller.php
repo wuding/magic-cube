@@ -18,7 +18,7 @@ class Controller
         $action = $action? : '_action';
 
         $var = $this->$action();
-        $var = $var ? : ['nothing' => null];
+        $var = $var ? : ['_nothing' => null];
         print_r($var);
     }
 

@@ -27,7 +27,10 @@ class Dispatcher
         extract($routeResult);
         # $handler = 'test';
 
-        if (preg_match('/\//', $handler)) {
+        if (!$handler || is_numeric($handler)) {
+            exit;
+
+        } elseif (preg_match('/\//', $handler)) {
             $uriInfo = $this->parseUri($handler);
             
             /*
@@ -38,24 +41,9 @@ class Dispatcher
             $uriInfo = $this->parseHandler($handler);
         }
 
-
         $fixed = $this->fixedUriInfo($uriInfo);
-        $cls = $className = $this->getClassName($fixed);
-        $class = $this->fiexdClassName($className, $fixed);
-        if ($class != $className) {
-            $cls = $class;
-            $classNm = $this->fiexdClassName($class, $fixed);
-            $clsNm = $this->fiexdClassName($classNm, $fixed, 1);
-            if ($classNm != $class || $clsNm != $classNm) {
-                $cls = $classNm;
-                if ($clsNm != $classNm) {
-                    $cls = $clsNm;
-                }
-            }
-        }
-
+        $cls = $this->checkClassName($fixed);
         $object = $this->run($cls, $fixed);
-        print_r(get_defined_vars());
     }
 
     /**
@@ -307,6 +295,24 @@ class Dispatcher
             $class = $this->getClassName($uriInfo);
         }
         return $class;
+    }
+
+    public function checkClassName($fixed)
+    {
+        $cls = $className = $this->getClassName($fixed);
+        $class = $this->fiexdClassName($className, $fixed);
+        if ($class != $className) {
+            $cls = $class;
+            $classNm = $this->fiexdClassName($class, $fixed);
+            $clsNm = $this->fiexdClassName($classNm, $fixed, 1);
+            if ($classNm != $class || $clsNm != $classNm) {
+                $cls = $classNm;
+                if ($clsNm != $classNm) {
+                    $cls = $clsNm;
+                }
+            }
+        }
+        return $cls;
     }
 
     public function run($class, $uriInfo = [])
