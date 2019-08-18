@@ -44,9 +44,13 @@ class Dispatcher
         $class = $this->fiexdClassName($className, $fixed);
         if ($class != $className) {
             $cls = $class;
-            $classNm = $this->fiexdClassName($className, $fixed);
-            if ($classNm != $class) {
+            $classNm = $this->fiexdClassName($class, $fixed);
+            $clsNm = $this->fiexdClassName($classNm, $fixed, 1);
+            if ($classNm != $class || $clsNm != $class) {
                 $cls = $classNm;
+                if ($clsNm != $classNm) {
+                    $cls = $clsNm;
+                }
             }
         }
 
