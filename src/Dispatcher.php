@@ -38,9 +38,19 @@ class Dispatcher
             $uriInfo = $this->parseHandler($handler);
         }
 
+
         $fixed = $this->fixedUriInfo($uriInfo);
-        $className = $this->getClassName($fixed);
-        $object = $this->run($className, $fixed);
+        $cls = $className = $this->getClassName($fixed);
+        $class = $this->fiexdClassName($className, $fixed);
+        if ($class != $className) {
+            $cls = $class;
+            $classNm = $this->fiexdClassName($className, $fixed);
+            if ($classNm != $class) {
+                $cls = $classNm;
+            }
+        }
+
+        $object = $this->run($cls, $fixed);
         print_r(get_defined_vars());
     }
 
@@ -257,6 +267,22 @@ class Dispatcher
         );
     }
 
+    public function getUriInfo($uriInfo, $type = null)
+    {
+        if ('_module' == $uriInfo['module']) {
+            if ('_controller' != $uriInfo['controller']) {
+                $uriInfo['controller'] = '_controller';
+            }
+
+        } else {
+            $uriInfo['module'] = !$type ? $uriInfo['module'] : '_module';
+            if ('_controller' != $uriInfo['controller']) {
+                $uriInfo['controller'] = '_controller';
+            }
+        }
+        return $uriInfo;
+    }
+
     public function fixedName($str)
     {
         return $str = ucfirst($str);
@@ -268,6 +294,15 @@ class Dispatcher
 
         $str = "/App/$module/controller/$controller";
         return $className = preg_replace('/\//', '\\', $str);
+    }
+
+    public function fiexdClassName($class, $uriInfo, $type = null)
+    {
+        if (!class_exists($class)) {
+            $uriInfo = $this->getUriInfo($uriInfo, $type);
+            $class = $this->getClassName($uriInfo);
+        }
+        return $class;
     }
 
     public function run($class, $uriInfo = [])
