@@ -13,13 +13,19 @@ class Controller
 
     public function __destruct()
     {
+        global $template;
+
         $uriInfo = $this->uriInfo;
         $action = isset($uriInfo['action']) ? $uriInfo['action'] : null;
-        $action = $action? : '_action';
+        $action = $action ? : '_action';
 
         $var = $this->$action();
-        $var = $var ? : ['_nothing' => null];
-        print_r($var);
+        $var = $var ? : ['__nothing__' => null];
+        # print_r($var);
+
+        $template->setTemplateDir(ROOT . '/app/' . strtolower($uriInfo['module']) . '/template');
+        $script = 'index/index';
+        echo $template->render($script, $var);
     }
 
     public function __call($name, $arguments)
