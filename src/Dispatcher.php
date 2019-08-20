@@ -21,7 +21,7 @@ class Dispatcher
         }
     }
 
-    public function dispatch()
+    public function dispatch($return = null)
     {
         $routeResult = $this->routeInfo();
         extract($routeResult);
@@ -43,7 +43,11 @@ class Dispatcher
 
         $fixed = $this->fixedUriInfo($uriInfo);
         $cls = $this->checkClassName($fixed);
-        $object = $this->run($cls, $fixed);
+
+        if ($return) {
+            return get_defined_vars();
+        }
+        return $object = $this->run($cls, $fixed);
     }
 
     /**
