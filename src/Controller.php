@@ -18,12 +18,16 @@ class Controller
     {
         global $template;
         $uriInfo = $this->uriInfo;
-        $action = isset($uriInfo['action']) ? $uriInfo['action'] : null;
-        $action = in_array($action, $this->methods) ? $action : '_action';
+        $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
+        $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
 
         $var = $this->$action();
         $var = $var ? : ['__nothing__' => null];
         # print_r($var);
+        $uriInfoRun = $this->uriInfo;
+        if ($action != $uriInfoRun['action']) {
+            $action = $uriInfoRun['action'];
+        }
 
         $template->setTemplateDir(ROOT . '/app/' . strtolower($uriInfo['module']) . '/template');
         if ($this->enableView) {
