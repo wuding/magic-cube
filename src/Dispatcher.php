@@ -7,7 +7,7 @@ class Dispatcher
     public $routeInfo = array();
     public $httpMethod = null;
     public $modulesEnable = null;
-    
+
     public function __construct($routeInfo = [], $httpMethod = null)
     {
         $vars = get_defined_vars();
@@ -32,7 +32,7 @@ class Dispatcher
 
         } elseif (preg_match('/\//', $handler)) {
             $uriInfo = $this->parseUri($handler);
-            
+
             /*
             extract($uriInfo);
             $handler_encode = $this->encodeHandler($method, $module, $controller, $action, $param);
@@ -113,7 +113,7 @@ class Dispatcher
         if (1 < count($moduleInfo)) {
             list($module_var, $controller_str) = $moduleInfo;
             $module = $module_var ? : $module;
-        }        
+        }
 
         $controllerInfo = explode('@', $controller_str);
         $action_str = $controllerInfo[0];
@@ -226,7 +226,7 @@ class Dispatcher
                     $fourth = $split[3];
                 }
             }
-        }        
+        }
         $arr = array($first, $second, $third, $fourth);
 
         if (is_numeric($type)) {
