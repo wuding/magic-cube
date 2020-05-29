@@ -33,7 +33,13 @@ class Dispatcher
 
         $handler = $handler ? : $this->uri;
         if (is_numeric($handler)) {
-            exit;
+            // 不要直接退出
+            return array($handler, __FILE__, __LINE__);
+
+        } elseif (is_array($handler)) {
+            // 每种类型单独匹配
+            $uri = $handler[0];
+            return include $handler[1];
 
         } elseif (preg_match('/\//', $handler)) {
             $uriInfo = $this->parseUri($handler);
@@ -54,11 +60,10 @@ class Dispatcher
             $fix['controller'] = $fix['module'];
             $fix['module'] = $classes[2];
         }
-        if (strtolower($fix['controller']) != $ctrl) {
+        if (strtolower($fix['controller']) != strtolower($ctrl)) {
             $fix['action'] = strtolower($fix['controller']);
             $fix['controller'] = $ctrl;
         }
-        #echo array_pop($classes);exit;
 
         if ($return) {
             return get_defined_vars();
