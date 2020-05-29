@@ -7,11 +7,15 @@ class Dispatcher
     public $routeInfo = array();
     public $httpMethod = null;
     public $modulesEnable = null;
+    public $uri = null;
 
     public function __construct($routeInfo = [], $httpMethod = null)
     {
         $vars = get_defined_vars();
         $this->setVars($vars);
+
+        global $_VAR;
+        $this->uri = $_VAR['uri'];
     }
 
     public function setVars($vars = [])
@@ -27,7 +31,8 @@ class Dispatcher
         extract($routeResult);
         # $handler = 'test';
 
-        if (!$handler || is_numeric($handler)) {
+        $handler = $handler ? : $this->uri;
+        if (is_numeric($handler)) {
             exit;
 
         } elseif (preg_match('/\//', $handler)) {
@@ -41,13 +46,24 @@ class Dispatcher
             $uriInfo = $this->parseHandler($handler);
         }
 
-        $fixed = $this->fixedUriInfo($uriInfo);
+        $fix = $fixed = $this->fixedUriInfo($uriInfo);
         $cls = $this->checkClassName($fixed);
+        $classes = explode('\\', $cls);
+        $ctrl = array_pop($classes);
+        if (strtolower($fix['module']) != strtolower($classes[2])) {
+            $fix['controller'] = $fix['module'];
+            $fix['module'] = $classes[2];
+        }
+        if (strtolower($fix['controller']) != $ctrl) {
+            $fix['action'] = strtolower($fix['controller']);
+            $fix['controller'] = $ctrl;
+        }
+        #echo array_pop($classes);exit;
 
         if ($return) {
             return get_defined_vars();
         }
-        return $object = $this->run($cls, $fixed);
+        return $object = $this->run($cls, $fix);
     }
 
     /**
@@ -323,6 +339,9 @@ class Dispatcher
     {
         $vars = array(
             'uriInfo' => $uriInfo,
+            'routeInfo' => $this->routeInfo,
+            'httpMethod' => $this->httpMethod,
+            'uri' => $this->uri,
         );
 
         $object = new $class($vars);
