@@ -20,6 +20,7 @@ class Controller
         $uriInfo = $this->uriInfo;
         $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
         $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
+        # print_r(get_defined_vars());
 
         $var = $this->$action();
         $var = $var ? : ['__nothing__' => null];
@@ -29,8 +30,8 @@ class Controller
             $action = $uriInfoRun['action'];
         }
 
-        $template->setTemplateDir(ROOT . '/app/' . strtolower($uriInfo['module']) . '/template');
         if ($this->enableView) {
+            $template->setTemplateDir(ROOT . '/app/' . strtolower($uriInfo['module']) . '/template');
             $controller = lcfirst($uriInfo['controller']);
             $script = "$controller/$action";
             echo $template->render($script, $var);
