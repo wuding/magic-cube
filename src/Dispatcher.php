@@ -39,9 +39,14 @@ class Dispatcher
         } elseif (is_array($handler)) {
             // 每种类型单独匹配
             $uri = $handler[0];
-            return include $handler[1];
+            $include =  include $handler[1];
+            if (is_numeric($include)) {
+                return $include;
+            }
+            $handler = array_shift($handler);
+        }
 
-        } elseif (preg_match('/\//', $handler)) {
+        if (preg_match('/\//', $handler)) {
             $uriInfo = $this->parseUri($handler);
 
             /*
