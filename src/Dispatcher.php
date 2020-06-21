@@ -123,7 +123,7 @@ class Dispatcher
     {
         $method = 'all';
         $module = $type ? 'index' : '_module';
-        $controller = '_controller';
+        $controller = '_Controller';
         $action = '_action';
         $param = null;
 
@@ -180,7 +180,7 @@ class Dispatcher
     {
         $method = $method ? : 'all';
         $module = $module ? : '_module';
-        $controller = $controller ? : '_controller';
+        $controller = $controller ? : '_Controller';
         $action = $action ? : '_action';
         $param = $param ? : '';
 
@@ -277,7 +277,7 @@ class Dispatcher
         extract($vars);
 
         $module = $module ? : 'index';
-        $controller = $controller ? : 'index';
+        $controller = $controller ? : 'Index';
         $action = $action ? : 'index';
 
         return array(
@@ -293,13 +293,13 @@ class Dispatcher
     {
         if ('_module' == $uriInfo['module']) {
             if ('_controller' != $uriInfo['controller']) {
-                $uriInfo['controller'] = '_controller';
+                $uriInfo['controller'] = '_Controller';
             }
 
         } else {
             $uriInfo['module'] = !$type ? $uriInfo['module'] : '_module';
             if ('_controller' != $uriInfo['controller']) {
-                $uriInfo['controller'] = '_controller';
+                $uriInfo['controller'] = '_Controller';
             }
         }
         return $uriInfo;
@@ -314,7 +314,7 @@ class Dispatcher
     {
         extract($vars);
 
-        $str = "/App/$module/controller/$controller";
+        $str = "/app/$module/controller/$controller";
         return $className = preg_replace('/\//', '\\', $str);
     }
 
