@@ -276,9 +276,9 @@ class Dispatcher
     {
         extract($vars);
 
-        $module = $module ? : 'index';
-        $controller = $controller ? : 'Index';
-        $action = $action ? : 'index';
+        $module = $module ? : (is_numeric($module) ? $module : 'index');
+        $controller = $controller ? : (is_numeric($controller) ? $controller : 'Index');
+        $action = $action ? : (is_numeric($action) ? $action : 'index');
 
         return array(
             'method' => $method,

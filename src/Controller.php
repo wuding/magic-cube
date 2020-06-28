@@ -49,5 +49,10 @@ class Controller
             $this->$key = $value;
         }
     }
+
+    public function _action()
+    {
+        print_r(array($this, __FILE__, __LINE__));
+    }
 }
 
