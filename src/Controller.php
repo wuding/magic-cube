@@ -35,7 +35,9 @@ class Controller
         }
 
         if (true === $this->enableView) {
-            $template->setCallback($this->outputCallback);
+            if (null !== $this->outputCallback) {
+                $template->setCallback($this->outputCallback);
+            }
             $template->setTemplateDir(ROOT . '/app/' . strtolower($uriInfo['module']) . '/template');
             $controller = strtolower($uriInfo['controller']);
             $script = "$controller/$action";
@@ -70,8 +72,10 @@ class Controller
                     # code...
                     break;
             }
-            echo $this->viewTag ? "<$this->viewTag$this->viewStyle>" . PHP_EOL : '';
+            echo $this->viewTag ? "<$this->viewTag$this->viewStyle>" : '';
+            echo PHP_EOL;
             echo $this->htmlSpecialChars ? htmlspecialchars($output) : $output;
+            echo PHP_EOL;
             echo $this->viewTag ? "</$this->viewTag>" : '';
         }
     }
