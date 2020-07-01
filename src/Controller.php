@@ -7,6 +7,12 @@ class Controller
     public $uriInfo = array();
     public $methods = array();
     public $enableView = true;
+    public $outputCallback = null;
+    public $debugRender = false;
+    public $viewTag = 'pre';
+    public $viewStyle = ' style="width:100%; height:100%; margin: 0;"';
+    public $htmlSpecialChars = false;
+    # public $htmlTag = '</textarea>';
 
     public function __construct($vars = [])
     {
@@ -17,24 +23,56 @@ class Controller
     public function __destruct()
     {
         global $template;
+        # $this->htmlTag = "</$this->viewTag>";
         $uriInfo = $this->uriInfo;
         $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
         $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
-        # print_r(get_defined_vars());
 
         $var = $this->$action();
-        $var = $var ? : ['__nothing__' => null];
-        # print_r($var);
         $uriInfoRun = $this->uriInfo;
         if ($action != $uriInfoRun['action']) {
             $action = $uriInfoRun['action'];
         }
 
-        if ($this->enableView) {
+        if (true === $this->enableView) {
+            $template->setCallback($this->outputCallback);
             $template->setTemplateDir(ROOT . '/app/' . strtolower($uriInfo['module']) . '/template');
-            $controller = lcfirst($uriInfo['controller']);
+            $controller = strtolower($uriInfo['controller']);
             $script = "$controller/$action";
-            echo $template->render($script, $var);
+            $render = $template->render($script, $var);
+            $type = gettype($render);
+            if ('NULL' != $type) {
+                print_r($render);
+            }
+            if ('NULL' == $type && !$this->outputCallback || $this->debugRender) {
+                print_r(['render_type' => $type, 'file' => __FILE__, 'line' => __LINE__, 'render_result' => $render]);
+            }
+        } else {
+            $output = null;
+            switch ($this->enableView) {
+                case 1:
+                    $output = print_r($var, true);
+                    break;
+
+                case 2:
+                    var_dump($var);
+                    break;
+
+                case 3:
+                    $output = var_export($var, true);
+                    break;
+
+                case 4:
+                    $output = gettype($var);
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
+            echo $this->viewTag ? "<$this->viewTag$this->viewStyle>" . PHP_EOL : '';
+            echo $this->htmlSpecialChars ? htmlspecialchars($output) : $output;
+            echo $this->viewTag ? "</$this->viewTag>" : '';
         }
     }
 
