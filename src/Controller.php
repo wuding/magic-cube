@@ -4,7 +4,9 @@ namespace MagicCube;
 
 class Controller
 {
-    public $uriInfo = array();
+    use \MagicCube\Traits\_Abstract;
+
+    public $uriInfo = array('module' => '_', 'controller' => '_', 'action' => '_');
     public $methods = array();
     public $enableView = true;
     public $outputCallback = null;
@@ -13,10 +15,11 @@ class Controller
     public $viewStyle = ' style="width:100%; height:100%; margin: 0;"';
     public $htmlSpecialChars = false;
     # public $htmlTag = '</textarea>';
+    public $namespace = "app\{m}\controller\{c}";
 
     public function __construct($vars = [])
     {
-        $this->setVars($vars);
+        $this->_setVars($vars);
         $this->methods = get_class_methods($this);
     }
 
@@ -28,18 +31,17 @@ class Controller
         $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
         $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
 
+        // 执行动作，并导入可能修改后的信息变量
         $var = $this->$action();
-        $uriInfoRun = $this->uriInfo;
-        if ($action != $uriInfoRun['action']) {
-            $action = $uriInfoRun['action'];
-        }
+        extract($this->uriInfo);
 
         if (true === $this->enableView) {
             if (null !== $this->outputCallback) {
                 $template->setCallback($this->outputCallback);
             }
-            $template->setTemplateDir(ROOT . '/app/' . strtolower($uriInfo['module']) . '/template');
-            $controller = strtolower($uriInfo['controller']);
+            // 应该传递变量，让模板替换规则获取目录和文件名
+            $template->setTemplateDir(ROOT . '/app/' . strtolower($module) . '/template');
+            $controller = strtolower($controller);
             $script = "$controller/$action";
             $render = $template->render($script, $var);
             $type = gettype($render);
@@ -82,24 +84,16 @@ class Controller
 
     public function __call($name, $arguments)
     {
-        return [$name, $arguments, __FILE__, __LINE__];
-    }
-
-    public function setVars($vars = [])
-    {
-        foreach ($vars as $key => $value) {
-            $this->$key = $value;
-        }
-    }
-
-    public function _action()
-    {
-        $this->uriInfo['action'] = '_action';
+        extract($this->uriInfo);
+        $className = $this->_replaceNamespace($module, $controller);
+        // className 应该输出所有检测过的类名
+        $this->uriInfo['controller'] = '_error';
+        $this->uriInfo['action'] = '404';
         return array(
             '__controller__' => array(
                 'code' => 404,
                 'msg' => array(
-                    '' => '404 Not Found',
+                    '' => "Not Found $className::$action()",
                     'file' => __FILE__,
                     'line' => __LINE__,
                     'method' => __METHOD__,

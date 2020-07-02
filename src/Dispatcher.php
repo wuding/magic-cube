@@ -4,25 +4,21 @@ namespace MagicCube;
 
 class Dispatcher
 {
+    use \MagicCube\Traits\_Abstract;
+
     public $routeInfo = array();
     public $httpMethod = null;
     public $modulesEnable = null;
     public $uri = null;
+    public $namespace = "app\{m}\controller\{c}";
 
     public function __construct($routeInfo = [], $httpMethod = null)
     {
         $vars = get_defined_vars();
-        $this->setVars($vars);
+        $this->_setVars($vars);
 
         global $_VAR;
         $this->uri = $_VAR['uri'];
-    }
-
-    public function setVars($vars = [])
-    {
-        foreach ($vars as $key => $value) {
-            $this->$key = $value;
-        }
     }
 
     public function dispatch($return = null)
@@ -59,11 +55,12 @@ class Dispatcher
 
         $fix = $fixed = $this->fixedUriInfo($uriInfo);
         $cls = $this->checkClassName($fixed);
-        $classes = explode('\\', $cls);
+        $className = trim($cls, '\\');
+        $classes = explode('\\', $className);
         $ctrl = array_pop($classes);
-        if (strtolower($fix['module']) != strtolower($classes[2])) {
+        if (strtolower($fix['module']) != strtolower($classes[1])) {
             $fix['controller'] = $fix['module'];
-            $fix['module'] = $classes[2];
+            $fix['module'] = $classes[1];
         }
         if (strtolower($fix['controller']) != strtolower($ctrl)) {
             $fix['action'] = strtolower($fix['controller']);
@@ -213,7 +210,7 @@ class Dispatcher
      *
      * @return     array    ( description_of_the_return_value )
      */
-    function parseUri($str, $type = null)
+    public function parseUri($str, $type = null)
     {
         $type = $type ? : $this->modulesEnable;
 
@@ -313,9 +310,7 @@ class Dispatcher
     public function getClassName($vars)
     {
         extract($vars);
-
-        $str = "/app/$module/controller/$controller";
-        return $className = preg_replace('/\//', '\\', $str);
+        return $this->_replaceNamespace($module, $controller);
     }
 
     public function fiexdClassName($class, $uriInfo, $type = null)
@@ -347,14 +342,16 @@ class Dispatcher
 
     public function run($class, $uriInfo = [])
     {
+        if (!class_exists($class)) {
+            $class = '\MagicCube\Controller';
+        }
         $vars = array(
             'uriInfo' => $uriInfo,
             'routeInfo' => $this->routeInfo,
             'httpMethod' => $this->httpMethod,
             'uri' => $this->uri,
+            'namespace' => $this->namespace,
         );
-
-        $object = new $class($vars);
-        return $object;
+        return new $class($vars);
     }
 }
