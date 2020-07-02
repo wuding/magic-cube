@@ -94,7 +94,20 @@ class Controller
 
     public function _action()
     {
-        print_r(array($this, __FILE__, __LINE__));
+        $this->uriInfo['action'] = '_action';
+        return array(
+            '__controller__' => array(
+                'code' => 404,
+                'msg' => array(
+                    '' => '404 Not Found',
+                    'file' => __FILE__,
+                    'line' => __LINE__,
+                    'method' => __METHOD__,
+                ),
+                'data' => array(
+                    'obj' => $this,
+                ),
+            ),
+        );
     }
 }
-

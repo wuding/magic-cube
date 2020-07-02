@@ -150,7 +150,7 @@ class Dispatcher
 
         $actionInfo = explode('$', $action_str);
         $action = $actionInfo[0] ? : $action;
-        if (1 <count($actionInfo)) {
+        if (1 < count($actionInfo)) {
             list($action_var, $param_str) = $actionInfo;
             $action = $action_var ? : $action;
             $param = urldecode($param_str);
