@@ -11,6 +11,7 @@ class Dispatcher
     public $modulesEnable = null;
     public $uri = null;
     public $namespace = "app\{m}\controller\{c}";
+    public $alias = [];
 
     public function __construct($routeInfo = [], $httpMethod = null)
     {
@@ -51,6 +52,16 @@ class Dispatcher
             */
         } else {
             $uriInfo = $this->parseHandler($handler);
+        }
+
+        // 别名，路由干啥呢
+        $variable = $this->alias;
+        foreach ($variable as $key => $value) {
+            $pattern = "/^($value)$/i";
+            if (preg_match($pattern, $uriInfo['module'])) {
+                $uriInfo['module'] = $key;
+                break;
+            }
         }
 
         $fix = $fixed = $this->fixedUriInfo($uriInfo);
