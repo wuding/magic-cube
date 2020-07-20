@@ -20,6 +20,7 @@ class Controller
     public function __construct($vars = [])
     {
         $this->_setVars($vars);
+        $this->params = $this->routeInfo[2];
         $this->methods = get_class_methods($this);
     }
 
@@ -29,6 +30,7 @@ class Controller
         # $this->htmlTag = "</$this->viewTag>";
         $uriInfo = $this->uriInfo;
         $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
+        $actionInfo = is_numeric($actionInfo) ? '_numeric' : $actionInfo;
         $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
 
         // 执行动作，并导入可能修改后的信息变量
