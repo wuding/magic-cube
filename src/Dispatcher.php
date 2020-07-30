@@ -6,6 +6,7 @@ class Dispatcher
 {
     use \MagicCube\Traits\_Abstract;
 
+    const VERSION = '20.213.97';
     public $routeInfo = array();
     public $httpMethod = null;
     public $modulesEnable = null;
