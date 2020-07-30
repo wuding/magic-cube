@@ -16,4 +16,33 @@ trait _Abstract
         $cls = preg_replace('/\//', '\\', $str);
         return $className = rtrim($cls, '\\');
     }
+
+    public function _expires($seconds = 0)
+    {
+        if (!$seconds) {
+            return false;
+        }
+
+        $time = time();
+        $modified = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? null;
+        // 协商缓存
+        if ($modified) {
+            $modify = strtotime($modified);
+            $diff = $time - $modify;
+            if ($diff < $seconds) {
+                $mod = gmdate('D, d M Y H:i:s', $modify);
+                header("Last-Modified: $mod GMT");
+                header("HTTP/1.1 304");
+                exit;
+            }
+        }
+
+        // 强缓存
+        $timestamp = $time + $seconds;
+        $exp = gmdate('D, d M Y H:i:s', $timestamp);
+        $now = gmdate('D, d M Y H:i:s');
+        header("Expires: $exp GMT");
+        header("Cache-Control: max-age=$seconds");
+        header("Last-Modified: $now GMT");
+    }
 }
