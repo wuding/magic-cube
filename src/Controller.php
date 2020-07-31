@@ -19,8 +19,8 @@ class Controller
 
     public function __construct($vars = [])
     {
+        $this->params = $vars['routeInfo'][2];
         $this->_setVars($vars);
-        $this->params = $this->routeInfo[2];
         $this->methods = get_class_methods($this);
     }
 
