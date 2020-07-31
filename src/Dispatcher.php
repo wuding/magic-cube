@@ -42,6 +42,9 @@ class Dispatcher
                 return $include;
             }
             $handler = array_shift($handler);
+        } elseif (is_object($handler)) {
+            $handler();
+            $handler = null;
         }
 
         if (preg_match('/\//', $handler)) {
