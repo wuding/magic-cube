@@ -56,6 +56,11 @@ class Controller
         } else {
             $output = null;
             switch ($this->enableView) {
+                case 0:
+                    $output = print_r($var, true);
+                    $this->viewTag = null;
+                    break;
+
                 case 1:
                     $output = print_r($var, true);
                     break;
@@ -73,14 +78,10 @@ class Controller
                     break;
 
                 default:
-                    # code...
+                    var_dump($this->enableView);
                     break;
             }
-            echo $this->viewTag ? "<$this->viewTag$this->viewStyle>" : '';
-            echo PHP_EOL;
-            echo $this->htmlSpecialChars ? htmlspecialchars($output) : $output;
-            echo PHP_EOL;
-            echo $this->viewTag ? "</$this->viewTag>" : '';
+            $this->_debugView($output);
         }
     }
 
