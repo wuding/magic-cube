@@ -45,4 +45,14 @@ trait _Abstract
         header("Cache-Control: max-age=$seconds");
         header("Last-Modified: $now GMT");
     }
+
+    public function _debugView($output)
+    {
+        $str = $this->htmlSpecialChars ? htmlspecialchars($output) : $output;
+        if ($this->viewTag) {
+            echo "<$this->viewTag$this->viewStyle>". PHP_EOL . $str . PHP_EOL ."</$this->viewTag>";
+        } else {
+            echo $str;
+        }
+    }
 }
