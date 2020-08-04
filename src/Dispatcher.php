@@ -13,6 +13,7 @@ class Dispatcher
     public $uri = null;
     public $namespace = "app\{m}\controller\{c}";
     public $alias = [];
+    public $classes = [];
 
     public function __construct($routeInfo = [], $httpMethod = null)
     {
@@ -294,8 +295,8 @@ class Dispatcher
 
         return array(
             'method' => $method,
-            'module' => $this->fixedName($module),
-            'controller' => $this->fixedName($controller),
+            'module' => $this->fixedName($module, 1),
+            'controller' => $this->fixedName($controller, 2),
             'action' => $action,
             'param' => $param,
         );
@@ -317,9 +318,21 @@ class Dispatcher
         return $uriInfo;
     }
 
-    public function fixedName($str)
+    public function fixedName($str, $type = null)
     {
-        return $str = ucfirst($str);
+        // 路径信息
+        $var_array = pathinfo($str);
+        extract($var_array);
+
+        // 忽略字符、首字母大写
+        $file = preg_replace("/[\.\-_]+/", ' ', $filename);
+        $subject = ucwords($file);
+        $name = preg_replace("/\s+/", '', $subject);
+        if (1 === $type) {
+            $name = lcfirst($name);
+        }
+        #print_r(get_defined_vars());
+        return $name;
     }
 
     public function getClassName($vars)
@@ -330,6 +343,7 @@ class Dispatcher
 
     public function fiexdClassName($class, $uriInfo, $type = null)
     {
+        $this->classes[] = $class;
         if (!class_exists($class)) {
             $uriInfo = $this->getUriInfo($uriInfo, $type);
             $class = $this->getClassName($uriInfo);
