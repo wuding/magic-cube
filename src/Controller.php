@@ -19,6 +19,7 @@ class Controller
     # public $htmlTag = '</textarea>';
     public $namespace = "app\{m}\controller\{c}";
     public static $hook = null;
+    public $templateDir = null;
 
     public function __construct($vars = [])
     {
@@ -45,7 +46,7 @@ class Controller
                 $template->setCallback($this->outputCallback);
             }
             // 应该传递变量，让模板替换规则获取目录和文件名
-            $template->setTemplateDir(ROOT . '/app/' . strtolower($module) . '/template');
+            $template->setTemplateDir($this->templateDir ?: ROOT . '/app/' . strtolower($module) . '/template');
             $controller = strtolower($controller);
             $script = "$controller/$action";
             $render = $template->render($script, $var);
