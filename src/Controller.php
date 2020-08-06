@@ -2,6 +2,8 @@
 
 namespace MagicCube;
 
+use Ext\File;
+
 class Controller
 {
     use \MagicCube\Traits\_Abstract;
@@ -16,6 +18,7 @@ class Controller
     public $htmlSpecialChars = false;
     # public $htmlTag = '</textarea>';
     public $namespace = "app\{m}\controller\{c}";
+    public static $hook = null;
 
     public function __construct($vars = [])
     {
@@ -47,6 +50,11 @@ class Controller
             $script = "$controller/$action";
             $render = $template->render($script, $var);
             $type = gettype($render);
+            #File::putContents('controler.txt', print_r(get_defined_vars(), true));
+            if (null !== self::$hook) {
+                call_user_func_array(self::$hook, get_defined_vars());
+                goto __END__;
+            }
             if ('NULL' != $type) {
                 print_r($render);
             }
@@ -83,6 +91,7 @@ class Controller
             }
             $this->_debugView($output);
         }
+        __END__:
     }
 
     public function __call($name, $arguments)
