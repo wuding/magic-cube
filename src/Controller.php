@@ -28,8 +28,11 @@ class Controller
     public static $varname = array(
         'enableCache',
         'cacheTTL',
+        'enableConsole',
     );
     public static $cacheTTL = 10;
+    public static $skip = [];
+    public $actionReturnType = null;
 
     public function __construct($vars = [])
     {
@@ -50,13 +53,22 @@ class Controller
 
         global $template;
         # $this->htmlTag = "</$this->viewTag>";
+        $output = $var = null;
         Glob::diff(__METHOD__);
         extract($this->_info());
+
+        __ACT__:
+        if (in_array('act', self::_('skip'))) {
+            goto __TPL__;
+        }
         // 执行动作，并导入可能修改后的信息变量
         $var = $this->$action();
         Glob::diff($script);
-        $output = '';
 
+        __TPL__:
+        if (in_array('tpl', self::_('skip'))) {
+            goto __LOG__;
+        }
         // 渲染模板
         if (true === $this->enableView) {
             if (null !== $this->outputCallback) {
@@ -74,7 +86,7 @@ class Controller
             // 处理
             if (null !== self::$hook) {
                 call_user_func_array(self::$hook, [get_defined_vars()]);
-                goto __END__;
+                goto __LOG__;
             }
             $type = gettype($render);
             if ('NULL' !== $type) {
@@ -85,6 +97,10 @@ class Controller
             }
         } else {
             switch ($this->enableView) {
+                case -1:
+                    goto __LOG__;
+                    break;
+
                 case 0:
                     $output = print_r($var, true);
                     $this->viewTag = null;
@@ -113,9 +129,12 @@ class Controller
             $output = $this->_debugView($output);
         }
 
-        __END__:
+        __LOG__:
+        if (in_array('log', self::_('skip'))) {
+            goto __END__;
+        }
         // 控制台
-        $console = $_COOKIE['stat'] ?? null;
+        $console = $_COOKIE['stat'] ?? self::_(2);
         if ($console) {
             $log = Glob::$timeNode;
             $req = $_SERVER['REQUEST_TIME_FLOAT'];
@@ -127,7 +146,14 @@ class Controller
             $log['DIFF'] = $now - $req;
             $log['DIFF_MS'] = Math::floors($log['DIFF'] * 1000, 2);
             asort($log);
-            $output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
+            if ('json' === $this->actionReturnType) {
+                $obj = json_decode($output);
+                $arr = (array) $obj;
+                $arr['log'] = $log;
+                $output = json_encode($arr);
+            } else {
+                $output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
+            }
         }
         // 压缩
         if ('on' !== Glob::conf('gzip')) {
@@ -139,6 +165,7 @@ class Controller
             header("Content-Encoding: gzip");
             $output = Zlib::encode($output);
         }
+        __END__:
         echo $output;
     }
 
