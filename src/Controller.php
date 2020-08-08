@@ -33,6 +33,7 @@ class Controller
     public static $cacheTTL = 10;
     public static $skip = [];
     public $actionReturnType = null;
+    public static $enableConsole = null;
 
     public function __construct($vars = [])
     {
