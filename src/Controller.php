@@ -3,6 +3,7 @@
 namespace MagicCube;
 
 use Ext\File;
+use Ext\Zlib;
 use Ext\X\PhpRedis;
 use model\Glob;
 
@@ -53,6 +54,7 @@ class Controller
         // 执行动作，并导入可能修改后的信息变量
         $var = $this->$action();
         Glob::diff($script);
+        $output = '';
 
         // 渲染模板
         if (true === $this->enableView) {
@@ -75,13 +77,12 @@ class Controller
             }
             $type = gettype($render);
             if ('NULL' !== $type) {
-                print_r($render);
+                $output = print_r($render, true);
             }
             if ('NULL' === $type && !$this->outputCallback || $this->debugRender) {
-                print_r(['render_type' => $type, 'file' => __FILE__, 'line' => __LINE__, 'render_result' => $render]);
+                $output = print_r(['render_type' => $type, 'file' => __FILE__, 'line' => __LINE__, 'render_result' => $render], true);
             }
         } else {
-            $output = null;
             switch ($this->enableView) {
                 case 0:
                     $output = print_r($var, true);
@@ -108,7 +109,7 @@ class Controller
                     var_dump($this->enableView);
                     break;
             }
-            $this->_debugView($output);
+            $output = $this->_debugView($output);
         }
 
         __END__:
@@ -125,8 +126,19 @@ class Controller
             $log['DIFF'] = $now - $req;
             $log['DIFF_MS'] = Glob::_round($log['DIFF'] * 1000, 2);
             asort($log);
-            echo '<pre style="clear:left">'. print_r($log, true) .'</pre>';
+            $output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
         }
+        // 压缩
+        if ('on' !== Glob::conf('gzip')) {
+            exit($output);
+        }
+        $encoding = $_SERVER['HTTP_ACCEPT_ENCODING'] ?? null;
+        $arr = preg_split('/,\s+/', $encoding);
+        if (in_array('gzip', $arr)) {
+            header("Content-Encoding: gzip");
+            $output = Zlib::encode($output);
+        }
+        echo $output;
     }
 
     public function __call($name, $arguments)

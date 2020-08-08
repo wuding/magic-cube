@@ -50,9 +50,9 @@ trait _Abstract
     {
         $str = $this->htmlSpecialChars ? htmlspecialchars($output) : $output;
         if ($this->viewTag) {
-            echo "<$this->viewTag$this->viewStyle>". PHP_EOL . $str . PHP_EOL ."</$this->viewTag>";
+            return "<$this->viewTag$this->viewStyle>". PHP_EOL . $str . PHP_EOL ."</$this->viewTag>";
         } else {
-            echo $str;
+            return $str;
         }
     }
 }
