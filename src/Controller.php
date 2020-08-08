@@ -3,6 +3,7 @@
 namespace MagicCube;
 
 use Ext\File;
+use Ext\Math;
 use Ext\Zlib;
 use Ext\X\PhpRedis;
 use model\Glob;
@@ -124,7 +125,7 @@ class Controller
             $log['REQUEST_TIME_FLOAT'] = $req;
             $log['NOW'] = $now;
             $log['DIFF'] = $now - $req;
-            $log['DIFF_MS'] = Glob::_round($log['DIFF'] * 1000, 2);
+            $log['DIFF_MS'] = Math::rounded($log['DIFF'] * 1000, 2);
             asort($log);
             $output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
         }
