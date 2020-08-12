@@ -1,5 +1,9 @@
 <?php
+
 namespace MagicCube\Traits;
+
+use Ext\Url;
+use Ext\Zlib;
 
 trait _Abstract
 {
@@ -44,6 +48,42 @@ trait _Abstract
         header("Expires: $exp GMT");
         header("Cache-Control: max-age=$seconds");
         header("Last-Modified: $now GMT");
+    }
+
+    // 检测客户端接受确定是否编码
+    public static function _gzip($output, $on = null)
+    {
+        $on = null === $on ? 'on' : strtolower($on);
+        if ('on' !== $on) {
+            return $output;
+        }
+
+        $encoding = $_SERVER['HTTP_ACCEPT_ENCODING'] ?? null;
+        $encoding = strtolower($encoding);
+        $arr = preg_split('/,\s+/', $encoding);
+        if (in_array('gzip', $arr)) {
+            header("Content-Encoding: gzip");
+            $output = Zlib::encode($output);
+        }
+        return $output;
+    }
+
+    // 链接去掉多余查询键
+    public static function _clearUrl($arr = null)
+    {
+        new \Func\Variable;
+        $url = \Func\request_url();
+        $URL = parse_url($url);
+        parse_str($URL['query'] ?? null, $QUERY);
+        $remove = null === $arr ? ['disabled'] : $arr;
+        foreach ($remove as $key) {
+            unset($QUERY[$key]);
+        }
+
+        $query = http_build_query($QUERY);
+        $URL['query'] = $query;
+        return $link = URL::httpBuildUrl($URL);
+        #print_r([$URL, $QUERY, $query, $link]);
     }
 
     public function _debugView($output)
