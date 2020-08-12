@@ -76,9 +76,10 @@ trait _Abstract
         $URL = parse_url($url);
         parse_str($URL['query'] ?? null, $QUERY);
         foreach ($remove as $key => $value) {
+            $val = $QUERY[$key] ?? null;
             if (is_numeric($key)) {
                 unset($QUERY[$key]);
-            } elseif ($QUERY[$key] === $value) {
+            } elseif ($val === $value) {
                 unset($QUERY[$key]);
             }
         }
