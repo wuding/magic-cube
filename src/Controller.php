@@ -37,7 +37,6 @@ class Controller
 
     public function __construct($vars = [])
     {
-
         //时间节点
         Glob::$timeNode['REQUEST_TIME_FLOAT'] = $_SERVER['REQUEST_TIME_FLOAT'];
         Glob::time('MAGIC_CUBE');
@@ -46,12 +45,10 @@ class Controller
         $this->params = $vars['routeInfo'][2];
         $this->_setVars($vars);
         $this->methods = get_class_methods($this);
-
     }
 
     public function __destruct()
     {
-
         global $template;
         # $this->htmlTag = "</$this->viewTag>";
         $output = $var = null;
@@ -64,6 +61,13 @@ class Controller
         }
         // 执行动作，并导入可能修改后的信息变量
         $var = $this->$action();
+        extract($this->_info());
+        $action_type = gettype($var);
+        if (false === $var) {
+            goto __LOG__;
+        } elseif (!in_array($action_type, ['array', 'string', 'NULL'])) {
+            print_r(['action type', $action_type, __FILE__, __LINE__]);
+        }
         Glob::diff($script);
 
         __TPL__:
@@ -74,6 +78,9 @@ class Controller
         if (true === $this->enableView) {
             if (null !== $this->outputCallback) {
                 $template->setCallback($this->outputCallback);
+            }
+            if (in_array('render', self::$skip)) {
+                goto __LOG__;
             }
             $template->setTemplateDir($templateDir);
 
@@ -153,22 +160,22 @@ class Controller
                 $arr['log'] = $log;
                 $output = json_encode($arr);
             } else {
-                $output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
+                #$output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
+                $json = json_encode($log);
+                $json_str = preg_replace("/\//", '\\', $json);// 为啥 / 变 // ?
+                $json_str = preg_replace("/(\\\)+/", '/', $json_str);
+                $output .= <<<HEREDOC
+<script>log = JSON.parse('$json_str'); console.log(log)</script>
+HEREDOC;
             }
         }
-        // 压缩
-        if ('on' !== Glob::conf('gzip')) {
-            exit($output);
-        }
-        $encoding = $_SERVER['HTTP_ACCEPT_ENCODING'] ?? null;
-        $arr = preg_split('/,\s+/', $encoding);
-        if (in_array('gzip', $arr)) {
-            header("Content-Encoding: gzip");
-            $output = Zlib::encode($output);
-        }
+
         __END__:
-        echo $output;
+        echo $this->_gzip($output, Glob::conf('gzip'));
+
     }
+
+
 
     public function __call($name, $arguments)
     {
@@ -198,16 +205,22 @@ class Controller
     {
 
         $uriInfo = $this->uriInfo;
+        $act = $this->uriInfo['tplAction'] ?? null;
         extract($uriInfo);
-        $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
-        $actionInfo = is_numeric($actionInfo) ? '_numeric' : $actionInfo;
-        $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
+        $action = $act ?: $this->_actionName($uriInfo);
         // 应该传递变量，让模板替换规则获取目录和文件名
         $templateDir = $this->templateDir ?: ROOT . '/app/' . strtolower($module) . '/template';
         $controller = strtolower($controller);
         $script = "$controller/$action";
         return get_defined_vars();
 
+    }
+
+    public function _actionName($uriInfo)
+    {
+        $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
+        $actionInfo = is_numeric($actionInfo) ? '_numeric' : $actionInfo;// 计划：要先 in_array methods
+        return $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
     }
 
     // 缓存文件键名
