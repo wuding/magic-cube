@@ -69,21 +69,30 @@ trait _Abstract
     }
 
     // 链接去掉多余查询键
-    public static function _clearUrl($arr = null)
+    public static function _clearUrl($arr = null, $url = null)
     {
-        new \Func\Variable;
-        $url = \Func\request_url();
+        $url = null === $url ? self::_requestUrl() : $url;
+        $remove = null === $arr ? ['disabled'] : $arr;
         $URL = parse_url($url);
         parse_str($URL['query'] ?? null, $QUERY);
-        $remove = null === $arr ? ['disabled'] : $arr;
-        foreach ($remove as $key) {
-            unset($QUERY[$key]);
+        foreach ($remove as $key => $value) {
+            if (is_numeric($key)) {
+                unset($QUERY[$key]);
+            } elseif ($QUERY[$key] === $value) {
+                unset($QUERY[$key]);
+            }
         }
 
         $query = http_build_query($QUERY);
         $URL['query'] = $query;
         return $link = URL::httpBuildUrl($URL);
         #print_r([$URL, $QUERY, $query, $link]);
+    }
+
+    public static function _requestUrl()
+    {
+        new \Func\Variable;
+        return \Func\request_url();
     }
 
     public function _debugView($output)
