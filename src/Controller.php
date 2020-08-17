@@ -142,7 +142,8 @@ class Controller
             goto __END__;
         }
         // 控制台
-        $console = $_COOKIE['stat'] ?? self::_(2);
+        $stat = $_COOKIE['stat'] ?? null;
+        $console = $stat && self::_(2);
         if ($console) {
             $log = Glob::$timeNode;
             $req = $_SERVER['REQUEST_TIME_FLOAT'];
