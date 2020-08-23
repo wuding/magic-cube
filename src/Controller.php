@@ -34,6 +34,7 @@ class Controller
     public static $skip = [];
     public $actionReturnType = null;
     public static $enableConsole = null;
+    public $output = null;
 
     public function __construct($vars = [])
     {
@@ -61,6 +62,7 @@ class Controller
         }
         // 执行动作，并导入可能修改后的信息变量
         $var = $this->$action();
+        $output = $this->output;
         extract($this->_info());
         $action_type = gettype($var);
         if (false === $var) {
