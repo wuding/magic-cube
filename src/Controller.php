@@ -17,6 +17,7 @@ class Controller
     public $enableView = true;
     public static $enableCache = null;
     public $outputCallback = null;
+    public $outputInclude = null;
     public $debugRender = false;
     public $viewTag = 'pre';
     public $viewStyle = ' style="width:100%; height:100%; margin: 0;"';
@@ -79,7 +80,7 @@ class Controller
         // 渲染模板
         if (true === $this->enableView) {
             if (null !== $this->outputCallback) {
-                $template->setCallback($this->outputCallback);
+                $template->setCallback($this->outputCallback, $this->outputInclude);
             }
             if (in_array('render', self::$skip)) {
                 goto __LOG__;
@@ -185,6 +186,7 @@ HEREDOC;
         extract($this->uriInfo);
         $className = $this->_replaceNamespace($module, $controller);
         // className 应该输出所有检测过的类名
+        $obj = get_object_vars($this);
         $this->uriInfo['controller'] = '_error';
         $this->uriInfo['action'] = '404';
         return array(
@@ -197,7 +199,7 @@ HEREDOC;
                     'method' => __METHOD__,
                 ),
                 'data' => array(
-                    'obj' => $this,
+                    'obj' => $obj,
                 ),
             ),
         );
