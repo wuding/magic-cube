@@ -166,10 +166,10 @@ class Controller
             } else {
                 #$output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
                 $json = json_encode($log);
-                $json_str = preg_replace("/\//", '\\', $json);// 为啥 / 变 // ?
-                $json_str = preg_replace("/(\\\)+/", '/', $json_str);
+                #$json_str = preg_replace("/\//", '\\', $json);// 为啥 / 变 // ?
+                #$json_str = preg_replace("/(\\\)+/", '/', $json_str);
                 $output .= <<<HEREDOC
-<script>log = JSON.parse('$json_str'); console.log(log)</script>
+<script>log = $json; console.log(log)</script>
 HEREDOC;
             }
         }
