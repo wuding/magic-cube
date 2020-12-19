@@ -163,6 +163,11 @@ class Controller
                 $arr = (array) $obj;
                 $arr['log'] = $log;
                 $output = json_encode($arr);
+            } elseif ('js' === $this->actionReturnType) {
+                $log['AS'] = 'script';
+                $json = json_encode($log);
+                $output .= PHP_EOL;
+                $output .= "log = $json; console.log(log)";
             } else {
                 #$output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
                 $json = json_encode($log);
