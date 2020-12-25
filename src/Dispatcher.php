@@ -69,17 +69,18 @@ class Dispatcher
             }
         }
 
+        // 计划：修正模块、控制器、动作标准名称
         $fix = $fixed = $this->fixedUriInfo($uriInfo);
         $cls = $this->checkClassName($fixed);
         $className = trim($cls, '\\');
         $classes = explode('\\', $className);
         $ctrl = array_pop($classes);
         if (strtolower($fix['module']) != strtolower($classes[1])) {
-            $fix['controller'] = $fix['module'];
+            $fix['controller'] = ucfirst($fix['module']);
             $fix['module'] = $classes[1];
         }
         if (strtolower($fix['controller']) != strtolower($ctrl)) {
-            $fix['action'] = strtolower($fix['controller']);
+            $fix['action'] = lcfirst($fix['controller']);
             $fix['controller'] = $ctrl;
         }
 
