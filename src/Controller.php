@@ -36,6 +36,8 @@ class Controller
     public $actionReturnType = null;
     public static $enableConsole = null;
     public $output = null;
+    public $replaceVars = null;
+    public static $replaceTplVars = null;
 
     public function __construct($vars = [])
     {
@@ -180,6 +182,12 @@ HEREDOC;
         }
 
         __END__:
+        // 替换动态模板变量
+        if ($variable = $this->replaceVars) {
+            foreach ($variable as $key => $value) {
+                $output = preg_replace("/\[\[$key\]\]/", $value, $output);
+            }
+        }
         echo $this->_gzip($output, Glob::conf('gzip'));
 
     }
@@ -268,6 +276,7 @@ HEREDOC;
         $ttl = self::_(1);
         if (false === $render || 0 > $ttl) {
             // 调用模板静态方法
+            $template->setTplVars(static::$replaceTplVars);
             $render = $template->render($script, $var);#var_dump($render);
             #File::putContents('controler.txt', print_r(get_defined_vars(), true));
             #File::putContents($cacheFile, $render);
