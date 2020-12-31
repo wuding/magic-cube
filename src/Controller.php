@@ -36,6 +36,8 @@ class Controller
     public $actionReturnType = null;
     public static $enableConsole = null;
     public $output = null;
+    // 如果程序内没有多次传值，静态属性更方便（跨类调用）
+    public static $outputContent = null;
     public $replaceVars = null;
     public static $replaceTplVars = null;
 
