@@ -172,6 +172,7 @@ class Controller
                 $json = json_encode($log);
                 $output .= PHP_EOL;
                 $output .= "log = $json; console.log(log)";
+            } elseif (in_array($this->actionReturnType, array('xml'))) {
             } else {
                 #$output .= '<pre style="clear:left">'. print_r($log, true) .'</pre>';
                 $json = json_encode($log);
