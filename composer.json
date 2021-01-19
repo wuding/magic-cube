@@ -1,0 +1,12 @@
+{
+    "name": "wuding/magic-cube",
+    "description": "PHP Framework Application Module and Controller",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MagicCube\\": "src"
+        }
+    }
+}
