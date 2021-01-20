@@ -7,6 +7,7 @@ class Controller
     public static $templateDir = null;
     public static $vars = [];
     public static $_request = array();
+    public $enableView = true;
 
     public function __construct($vars = [])
     {
@@ -29,23 +30,22 @@ class Controller
 
     public function __destruct()
     {
-        global $template;
         $uriInfo =& static::$vars['uriInfo'];
         // 调用动作方法
         $var = call_user_func_array(array($this, ($uriInfo['act'] ?? null) ?: $uriInfo['action']), $uriInfo['param']);
-
-        // 使用模板引擎渲染
-        $script = strtolower($uriInfo['controller']) .'/'. $uriInfo['action'];
-        $templateDir = self::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']) . '/template';
-        $template->setTemplateDir($templateDir);
-        $what = $template->render($script, $var);
-        print_r($what);
+        // 输出
+        if (true === $this->enableView) {
+            static::_render($uriInfo, $var);
+        } else {
+            print_r($var);
+        }
     }
 
     public function __call($name, $arguments)
     {
-        print_r(get_defined_vars());
-        print_r([__FILE__, __LINE__]);
+        $this->enableView = false;
+        $info = array(__FILE__, __LINE__);
+        return get_defined_vars();
     }
 
     /**
@@ -64,5 +64,16 @@ class Controller
     {
         header("Location: $url");
         exit;
+    }
+
+    // 使用模板引擎渲染
+    public static function _render($uriInfo = array(), $var = array())
+    {
+        global $template;
+        $script = strtolower($uriInfo['controller']) .'/'. $uriInfo['action'];
+        $templateDir = static::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']) . '/template';
+        $template->setTemplateDir($templateDir);
+        $what = $template->render($script, $var);
+        print_r($what);
     }
 }
