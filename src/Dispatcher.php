@@ -52,16 +52,22 @@ class Dispatcher
                     }
                 }
             }
-            #print_r(get_defined_vars());exit;
         }
         $uriInfo['offset'] = $offset;
+        // 返回解析结果
+        if ('return' === $return) {
+            return get_defined_vars();
+        }
 
         // 对象
         $vars = array('uriInfo' => $uriInfo);
+        $obj = new $class_name($vars);
+        // 正常输出并返回所有结果
         if ($return) {
             return get_defined_vars();
         }
-        return $obj = new $class_name($vars);
+        // 仅返回对象
+        return $obj;
     }
 
     public static function parseUri($str = null)
