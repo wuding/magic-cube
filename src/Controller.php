@@ -20,6 +20,7 @@ class Controller
         $req = array(
             'method' => 'REQUEST_METHOD',
             'uri' => 'REQUEST_URI',
+            'float' => 'REQUEST_TIME_FLOAT',
         );
         foreach ($req as $key => $value) {
             if (array_key_exists($value, $_SERVER)) {
@@ -62,6 +63,11 @@ class Controller
 
     public static function _redirect($url = null)
     {
+        $sent = headers_sent();
+        if (true === $sent) {
+            print_r([__FILE__, __LINE__, get_defined_vars()]);
+            exit;
+        }
         header("Location: $url");
         exit;
     }
