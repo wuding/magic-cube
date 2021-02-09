@@ -16,10 +16,15 @@ class Dispatcher
 
     public static function dispatch($return = null)
     {
+        //=s
         $ns = "app\{m}\controller\{c}";
-        $arr = array();
-        $arr[] = $uri = self::$uri;
-        $arr[] = $uriInfo = self::parseUri($uri);
+
+        //=f
+        $classes = array();
+
+        //=z
+        $uri = self::$uri;
+        $uriInfo = self::parseUri($uri);
         extract($uriInfo);
 
         // 大小写标准化
@@ -27,38 +32,55 @@ class Dispatcher
         $subject = ucwords($c);
         $controller = preg_replace("/\s+/", '', $subject);
 
+        //=sh
         // 检测类
-        $controller = is_numeric($controller) ? 'Index' : $controller;
-        $arr[] = $class_name = str_replace(["{m}", "{c}"], [$module, $controller], $ns);
-        $exists = class_exists($class_name);
+        $module = is_numeric($module) ? 'index' : lcfirst($module);
+        $controller = is_numeric($controller) ? 'Index' : ucfirst($controller);
+        $class_map = array(
+            array($module, $controller, null),
+            array($module, 'Index', lcfirst($controller)),
+            array('index', ucfirst($module), lcfirst($controller)),
+            array('index', 'Index', $module),
+        );
+
+        // 遍历
         $offset = 0;
+        $first = null;
+        foreach ($class_map as $try) {
+            $act = array_pop($try);
+            // 重名
+            if ($first === $try) {
+                continue 1;
+            }
+            $classes[] = $class_name = str_replace(["{m}", "{c}"], $try, $ns);
+            // 类检测
+            $exists = class_exists($class_name);
+            if ($exists) {
+                if ($act) {
+                    $uriInfo['act'] = $act;
+                }
+                $uriInfo['class'] = $class_name;
+                break 1;
+            }
+            $offset++;
+            $first = $try;
+        }
+
+        //=l
+        // 缺省类
         if (!$exists) {
             $offset++;
-            $uriInfo['act'] = lcfirst($controller);
-            $arr[] = $class_name = str_replace(["{m}", "{c}"], [$module, "Index"], $ns);
-            $exists = class_exists($class_name);
-            if (!$exists) {
-                $offset++;
-                $arr[] = $class_name = str_replace(["{m}", "{c}"], ["index", ucfirst($module)], $ns);
-                $exists = class_exists($class_name);
-                if (!$exists) {
-                    $offset++;
-                    $uriInfo['act'] = $module;
-                    $arr[] = $class_name = str_replace(["{m}", "{c}"], ["index", "Index"], $ns);
-                    $exists = class_exists($class_name);
-                    if (!$exists) {
-                        $offset++;
-                        $arr[] = $class_name = "MagicCube\Controller";
-                    }
-                }
-            }
+            $classes[] = $class_name = "MagicCube\Controller";
         }
         $uriInfo['offset'] = $offset;
+
+        //=j
         // 返回解析结果
         if ('return' === $return) {
             return get_defined_vars();
         }
 
+        //=g
         // 对象
         $vars = array('uriInfo' => $uriInfo);
         $obj = new $class_name($vars);
