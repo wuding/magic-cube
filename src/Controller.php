@@ -99,17 +99,18 @@ class Controller
     // 缺省动作 - 未找到页面
     public function __call($name, $arguments)
     {
+        $request_uri = $_SERVER['REQUEST_URI'] ?? null;
+        $version = self::VERSION;
         // 未安装模块
         if (static::$default === self::$vars['uriInfo']) {
             static::$templateDir = dirname(__DIR__) ."/app/index/template";
-            $version = self::VERSION;
 
         } elseif (static::$errorPages[404] ?? null) { // 404 自定义
             static::_header(404, 'Not Found');
             list($templateDir, $script, $var) = static::$errorPages[404];
             static::$templateDir = $templateDir ?: dirname(__DIR__) ."/app/index/template";
             static::$script = $script;
-            static::$data = $var ?: array('request_uri' => $_SERVER['REQUEST_URI'] ?? null);
+            static::$data = $var ?: get_defined_vars();
 
         } else { // 404 无定制页面
             $this->enableView = false;
