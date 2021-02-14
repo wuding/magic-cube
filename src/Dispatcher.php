@@ -4,6 +4,7 @@ namespace MagicCube;
 
 class Dispatcher
 {
+    const VERSION = '21.2.9';
     public static $uri = null;
 
     public function __construct($uri = null)

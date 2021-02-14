@@ -6,11 +6,33 @@ use Pkg\Glob;
 
 class Controller
 {
+    const VERSION = '21.2.14';
     /*
     参数
     */
+    // 模板
     public static $templateDir = null;
     public static $vars = [];
+    public static $errorPages = array(
+        404 => array(
+            null,
+            'error/404',
+            array(),
+        ),
+    );
+    public static $script = null;
+    public static $data = null;
+    // 响应
+    public static $headers = array();
+    public static $body = null;
+    // 模块
+    public static $default = array(
+        'module' => 'index',
+        'controller' => 'Index',
+        'action' => 'index',
+        'param' => array(),
+        'offset' => 2,
+    );
 
     /*
     变量、配置
@@ -77,8 +99,24 @@ class Controller
     // 缺省动作 - 未找到页面
     public function __call($name, $arguments)
     {
-        $this->enableView = false;
-        $info = array(__FILE__, __LINE__);
+        // 未安装模块
+        if (static::$default === self::$vars['uriInfo']) {
+            static::$templateDir = dirname(__DIR__) ."/app/index/template";
+
+        } elseif (static::$errorPages[404] ?? null) { // 404 自定义
+            static::_header(404, 'Not Found');
+            list($templateDir, $script, $var) = static::$errorPages[404];
+            static::$templateDir = $templateDir ?: dirname(__DIR__) ."/app/index/template";
+            static::$script = $script;
+            static::$data = $var ?: array('request_uri' => $_SERVER['REQUEST_URI'] ?? null);
+
+        } else { // 404 无定制页面
+            $this->enableView = false;
+        }
+
+        $init = self::$vars;
+        $file = __FILE__;
+        $line = __LINE__;
         return get_defined_vars();
     }
 
@@ -108,19 +146,65 @@ class Controller
     }
 
     // 使用模板引擎渲染
-    public static function _render($uriInfo = array(), $var = array())
+    public static function _render($uriInfo = array(), $var = array(), $return = null)
     {
         global $template;
         $script = strtolower($uriInfo['controller']) .'/'. $uriInfo['action'];
         $templateDir = static::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']) . '/template';
         $template->setTemplateDir($templateDir);
-        $what = $template->render($script, $var);
-        print_r($what);
+        $what = $template->render(static::$script ?: $script, static::$data ?: $var);
+        // 带头信息的输出
+        if (null === $return) {
+            static::_response($what);
+        } elseif (true === $return) { // 返回结果
+            return $what;
+        } else { // 直接输出
+            print_r($what);
+        }
     }
 
     // 获取模块配置项
     public static function _config($item = null, $value = null)
     {
         return Glob::conf($item, $value, static::$config);
+    }
+
+    // 添加头信息
+    public static function _header($key = null, $value = null, $replace = null, $http_response_code = null)
+    {
+        if (is_numeric($key)) {
+            $value = "HTTP/1.1 $key $value";
+        }
+        static::$headers[$key] = array($value, $replace, $http_response_code);
+    }
+
+    // 响应
+    public static function _response($body = null, $header = null)
+    {
+        $variable = $header ?: static::$headers;
+        // 是否已经发送
+        if ($variable && headers_sent($file, $line)) {
+            static::_dump_header(get_defined_vars());
+        }
+        // 遍历
+        foreach ($variable as $key => $value) {
+            list($srting, $replace, $http_response_code) = $value;
+            header($srting, $replace, $http_response_code);
+        }
+        // 输出
+        print_r($body ?: static::$body);
+    }
+
+    // 所有头信息
+    public static function _dump_header()
+    {
+        print_r(
+            array(
+                'args' => func_get_args(),
+                'code' => http_response_code(),
+                'list' => headers_list(),
+            )
+        );
+        exit;
     }
 }
