@@ -102,6 +102,7 @@ class Controller
         // 未安装模块
         if (static::$default === self::$vars['uriInfo']) {
             static::$templateDir = dirname(__DIR__) ."/app/index/template";
+            $version = self::VERSION;
 
         } elseif (static::$errorPages[404] ?? null) { // 404 自定义
             static::_header(404, 'Not Found');
