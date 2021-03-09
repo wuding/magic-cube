@@ -49,6 +49,7 @@ class Controller
     // 初始化
     public function __construct($vars = [])
     {
+        $uriInfo = $vars['uriInfo'];
         // 导入必须的变量
         foreach ($vars as $key => $value) {
             static::$vars[$key] = $value;
@@ -65,12 +66,6 @@ class Controller
                 static::$_request[$key] = $_SERVER[$value];
             }
         }
-    }
-
-    // 通过析构函数来执行动作
-    public function __destruct()
-    {
-        $uriInfo =& static::$vars['uriInfo'];
 
         // 导入模块配置
         if (true === $this->moduleConfig) {
@@ -84,6 +79,12 @@ class Controller
                 static::$config = include $file;
             }
         }
+    }
+
+    // 通过析构函数来执行动作
+    public function __destruct()
+    {
+        $uriInfo =& static::$vars['uriInfo'];
 
         // 调用动作方法
         $var = call_user_func_array(array($this, ($uriInfo['act'] ?? null) ?: $uriInfo['action']), $uriInfo['param']);
