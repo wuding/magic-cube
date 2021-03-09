@@ -4,10 +4,11 @@ namespace MagicCube;
 
 class Dispatcher
 {
-    const VERSION = '21.2.9';
+    const VERSION = '21.3.10';
     public static $uri = null;
+    public static $glob = null;
 
-    public function __construct($uri = null)
+    public function __construct($uri = null, $glob = null)
     {
         $variable = get_defined_vars();
         foreach ($variable as $key => $value) {
@@ -15,10 +16,11 @@ class Dispatcher
         }
     }
 
-    public static function dispatch($return = null)
+    public static function dispatch($return = null, $ns = null, $extra = null)
     {
         //=s
-        $ns = "app\{m}\controller\{c}";
+        $ns = $ns ?: "app\{m}\controller\{c}";
+
 
         //=f
         $classes = array();
@@ -37,12 +39,19 @@ class Dispatcher
         // 检测类
         $module = is_numeric($module) ? 'index' : lcfirst($module);
         $controller = is_numeric($controller) ? 'Index' : ucfirst($controller);
+        $theme = self::$glob::conf("module.$module.theme");
         $class_map = array(
-            array($module, $controller, null),
-            array($module, 'Index', lcfirst($controller)),
-            array('index', ucfirst($module), lcfirst($controller)),
-            array('index', 'Index', $module),
+            array(null, $module, $controller, null),
+            array(null, $module, 'Index', lcfirst($controller)),
+            array(null, 'index', ucfirst($module), lcfirst($controller)),
+            array(null, 'index', 'Index', $module),
         );
+        if ($extra && $theme) {
+            $ex = str_replace(["{t}"], array($theme), $extra);
+            array_unshift($class_map, array($ex, $module, $controller, null));
+        } else {
+            $theme = null;
+        }
 
         // 遍历
         $offset = 0;
@@ -53,7 +62,7 @@ class Dispatcher
             if ($first === $try) {
                 continue 1;
             }
-            $classes[] = $class_name = str_replace(["{m}", "{c}"], $try, $ns);
+            $classes[] = $class_name = str_replace(["{extra}", "{m}", "{c}"], $try, $ns);
             // 类检测
             $exists = class_exists($class_name);
             if ($exists) {
@@ -61,6 +70,9 @@ class Dispatcher
                     $uriInfo['act'] = $act;
                 }
                 $uriInfo['class'] = $class_name;
+                if ($theme) {
+                    $uriInfo['theme'] = $theme;
+                }
                 break 1;
             }
             $offset++;
