@@ -6,7 +6,7 @@ use Pkg\Glob;
 
 class Controller
 {
-    const VERSION = '21.2.14';
+    const VERSION = '21.3.10';
     /*
     参数
     */
@@ -153,7 +153,10 @@ class Controller
     {
         global $template;
         $script = strtolower($uriInfo['controller']) .'/'. $uriInfo['action'];
-        $templateDir = static::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']) . '/template';
+        // 计划：使用模板（类似调度器类里控制器类名模板）
+        $theme = $uriInfo['theme'] ?? null;
+        $themeDir = $theme ? "/theme/$theme" : null;
+        $templateDir = static::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']) . $themeDir . '/template';
         $template->setTemplateDir($templateDir);
         $what = $template->render(static::$script ?: $script, static::$data ?: $var);
         // 带头信息的输出
