@@ -7,8 +7,9 @@ class Dispatcher
     const VERSION = '21.3.10';
     public static $uri = null;
     public static $glob = null;
+    public static $prefix = null;
 
-    public function __construct($uri = null, $glob = null)
+    public function __construct($uri = null, $glob = null, $prefix = null)
     {
         $variable = get_defined_vars();
         foreach ($variable as $key => $value) {
@@ -105,8 +106,10 @@ class Dispatcher
         return $obj;
     }
 
-    public static function parseUri($str = null)
+    public static function parseUri($str = null, $prefix = null)
     {
+        $prefix = $prefix ?: self::$prefix;
+        $str = $prefix . $str;
         $m = 'index';
         $c = 'Index';
         $a = 'index';
