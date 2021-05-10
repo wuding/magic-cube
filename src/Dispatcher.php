@@ -332,7 +332,9 @@ class Dispatcher
         if (1 === $type) {
             $name = lcfirst($name);
         }
-        #print_r(get_defined_vars());
+        if (preg_match("/^[0-9]+/", $name)) {
+            $name = '_'. $name;
+        }
         return $name;
     }
 
