@@ -240,7 +240,8 @@ HEREDOC;
     public function _actionName($uriInfo)
     {
         $actionInfo = isset($uriInfo['action']) ? $uriInfo['action'] : null;
-        $actionInfo = is_numeric($actionInfo) ? '_numeric' : $actionInfo;// 计划：要先 in_array methods
+        $actionInf = preg_replace("/^_/", '', $actionInfo);
+        $actionInfo = is_numeric($actionInf) ? '_numeric' : $actionInfo;// 计划：要先 in_array methods
         return $action = in_array($actionInfo, $this->methods) ? $actionInfo : '_action';
     }
 
