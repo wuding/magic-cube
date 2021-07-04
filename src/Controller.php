@@ -87,7 +87,12 @@ class Controller
         $uriInfo =& static::$vars['uriInfo'];
 
         // 调用动作方法
-        $var = call_user_func_array(array($this, ($uriInfo['act'] ?? null) ?: $uriInfo['action']), $uriInfo['param']);
+        $methods = get_class_methods($this);
+        $actionName = ($uriInfo['act'] ?? null) ?: $uriInfo['action'];
+        if (!in_array($actionName, $methods)) {
+            $actionName = static::$vars['actionable'] ?? 'index';
+        }
+        $var = call_user_func_array(array($this, $actionName), $uriInfo['param']);
 
         // 输出
         if (true === $this->enableView) {
@@ -137,12 +142,15 @@ class Controller
     }
 
     // 重定向
-    public static function _redirect($url = null)
+    public static function _redirect($url = null, $formData = null)
     {
         $sent = headers_sent();
         if (true === $sent) {
             print_r([__FILE__, __LINE__, get_defined_vars()]);
             exit;
+        }
+        if (null !== $formData) {
+            return static::_post($url, $formData);
         }
         header("Location: $url");
         exit;
@@ -212,5 +220,12 @@ class Controller
             )
         );
         exit;
+    }
+
+    //
+    public static function _post($url = null, $formData = null)
+    {
+        static::$script = 'index\post';
+        return get_defined_vars();
     }
 }
