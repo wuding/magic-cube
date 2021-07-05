@@ -89,8 +89,12 @@ class Controller
         // 调用动作方法
         $methods = get_class_methods($this);
         $actionName = ($uriInfo['act'] ?? null) ?: $uriInfo['action'];
+        $actionable = static::$vars['actionable'] ?? null;
         if (!in_array($actionName, $methods)) {
-            $actionName = static::$vars['actionable'] ?? 'index';
+            if ($actionable) {
+                $actionName = static::$vars['actionable'] ?? 'index';
+            }
+
         }
         $var = call_user_func_array(array($this, $actionName), $uriInfo['param']);
 
