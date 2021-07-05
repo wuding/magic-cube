@@ -34,7 +34,7 @@ class Dispatcher
         // 大小写标准化
         $c = preg_replace("/[\-]+/", ' ', $controller);
         $subject = ucwords($c);
-        $controller = preg_replace("/\s+/", '', $subject);
+        $controller = $subject;#preg_replace("/\s+/", '', $subject);
 
         //=sh
         // 检测类
