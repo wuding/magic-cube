@@ -3,7 +3,7 @@
     "description": "PHP Framework Application Module and Controller",
     "require": {
         "php": ">=7.0.0",
-        "wuding/php-pkg": "^21.2.16"
+        "wuding/php-pkg": "dev-master"
     },
     "autoload": {
         "psr-4": {
