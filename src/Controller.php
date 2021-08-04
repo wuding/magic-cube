@@ -6,12 +6,13 @@ use Pkg\Glob;
 
 class Controller
 {
-    const VERSION = '21.3.10';
+    const VERSION = '21.8.4';
     /*
     参数
     */
     // 模板
     public static $templateDir = null;
+    public static $srcDir = null;
     public static $vars = [];
     public static $errorPages = array(
         404 => array(
@@ -155,8 +156,9 @@ class Controller
         $script = strtolower($uriInfo['controller']) .'/'. $uriInfo['action'];
         // 计划：使用模板（类似调度器类里控制器类名模板）
         $theme = $uriInfo['theme'] ?? null;
+        $srcDir = static::$srcDir ? '/'. static::$srcDir : null;
         $themeDir = $theme ? "/theme/$theme" : null;
-        $templateDir = static::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']) . $themeDir . '/template';
+        $templateDir = static::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']). $srcDir  . $themeDir . '/template';
         $template->setTemplateDir($templateDir);
         $what = $template->render(static::$script ?: $script, static::$data ?: $var);
         // 带头信息的输出
