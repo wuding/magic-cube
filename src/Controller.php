@@ -90,6 +90,12 @@ class Controller
         // 调用动作方法
         $methods = get_class_methods($this);
         $actionName = ($uriInfo['act'] ?? null) ?: $uriInfo['action'];
+        // 标准名称转换
+        $str = preg_replace("/[\-_]+/", ' ', $actionName);
+        $uc = ucwords($str);
+        $lc = lcfirst($uc);
+        $actionName = $ac = preg_replace("/\s+/", '', $lc);
+        #print_r([$actionName, $str, $uc, $lc, $ac, __FILE__, __LINE__]);
         $actionable = static::$vars['actionable'] ?? null;
         if (!in_array($actionName, $methods)) {
             if ($actionable) {
