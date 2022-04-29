@@ -44,7 +44,7 @@ class Controller
     /*
     开关
     */
-    public $enableView = true;
+    protected $enableView = true;
     public $moduleConfig = true;
 
     // 初始化
