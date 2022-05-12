@@ -11,5 +11,16 @@ namespace MagicCube\Uranus;
 
 class Planet
 {
-    const VERSION = '22.3.26';
+    const VERSION = '22.5.12';
+
+    public static function actionIsNumeric($action = null)
+    {
+        return is_numeric($action);
+
+    }
+
+    public static function isFixedAction($uriInfo = array())
+    {
+        return isset($uriInfo['act']);
+    }
 }
