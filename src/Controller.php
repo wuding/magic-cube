@@ -7,7 +7,7 @@ use MagicCube\Uranus\Planet;
 
 class Controller
 {
-    const VERSION = '22.5.12';
+    const VERSION = '22.5.28';
     /*
     参数
     */
@@ -133,6 +133,8 @@ class Controller
         if (true === $result_values) {
             $actionName = $uriInfo['act'];
         }
+
+        $actionName = Planet::fixActionName($actionName);
         if (!in_array($actionName, $methods)) {
             if ($actionable) {
                 $actionName = static::$vars['actionable'] ?? 'index';
