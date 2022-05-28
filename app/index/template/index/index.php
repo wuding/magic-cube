@@ -60,7 +60,7 @@ mklink /D index D:\app-module\index\src
 </code>
 
 <hr>
-<footer>
+<footer title="<?=__FILE__?>">
 <a href="https://github.com/wuding/magic-cube">MagicCube</a> Version <?=$version?>
 </footer>
 </body>

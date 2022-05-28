@@ -29,7 +29,7 @@ p a:hover {
 <h4><a href="/">返回首页</a></h4>
 
 <hr>
-<footer>
+<footer title="<?=__FILE__?>">
 <a href="https://github.com/wuding/magic-cube">MagicCube</a> Version <?=$version?>
 </footer>
 </body>
