@@ -3,10 +3,11 @@
 namespace MagicCube;
 
 use Pkg\Glob;
+use MagicCube\Uranus\Planet;
 
 class Controller
 {
-    const VERSION = '21.8.4';
+    const VERSION = '22.5.12';
     /*
     参数
     */
@@ -80,10 +81,18 @@ class Controller
                 static::$config = include $file;
             }
         }
+
+        // 22.5.12
+        $uriInfo =& static::$vars['uriInfo'];
+        $result_values = Planet::actionIsNumeric($uriInfo['action']);
+        if (true === $result_values) {
+            $uriInfo['param'] = array($uriInfo['action']);
+            $uriInfo['act'] = '_numeric';
+        }
     }
 
     // 通过析构函数来执行动作
-    public function __destruct()
+    public function __destruct0()
     {
         $uriInfo =& static::$vars['uriInfo'];
 
@@ -106,6 +115,31 @@ class Controller
         $var = call_user_func_array(array($this, $actionName), $uriInfo['param']);
 
         // 输出
+        if (true === $this->enableView) {
+            static::_render($uriInfo, $var);
+        } else {
+            print_r($var);
+        }
+    }
+
+    public function __destruct()
+    {
+        $actionable = static::$vars['actionable'] ?? null;
+        $uriInfo =& static::$vars['uriInfo'];
+        $result_values = Planet::isFixedAction($uriInfo);
+        $methods = get_class_methods($this);
+
+        $actionName = $uriInfo['action'];
+        if (true === $result_values) {
+            $actionName = $uriInfo['act'];
+        }
+        if (!in_array($actionName, $methods)) {
+            if ($actionable) {
+                $actionName = static::$vars['actionable'] ?? 'index';
+            }
+        }
+
+        $var = call_user_func_array(array($this, $actionName), $uriInfo['param']);
         if (true === $this->enableView) {
             static::_render($uriInfo, $var);
         } else {
