@@ -4,6 +4,7 @@ namespace MagicCube;
 
 use Pkg\Glob;
 use MagicCube\Uranus\Planet;
+use Ext\Variable;
 
 class Controller
 {
@@ -144,8 +145,9 @@ class Controller
         $var = call_user_func_array(array($this, $actionName), $uriInfo['param']);
         if (true === $this->enableView) {
             static::_render($uriInfo, $var);
-        } else {
-            print_r($var);
+        } elseif (is_int($this->enableView) || is_string($this->enableView)) {
+            // print_r($var);
+            Variable::pRvDvEdZvalD($this->enableView, [$var]);
         }
     }
 
