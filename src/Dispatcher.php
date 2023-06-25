@@ -2,9 +2,13 @@
 
 namespace MagicCube;
 
+use Ext\Arr;
+
 class Dispatcher
 {
-    const VERSION = '21.3.10';
+    const VERSION = '23.6.24';
+    const REVISION = 8;
+
     public static $uri = null;
     public static $glob = null;
     public static $prefix = null;
@@ -34,7 +38,7 @@ class Dispatcher
         // 大小写标准化
         $c = preg_replace("/[\-]+/", ' ', $controller);
         $subject = ucwords($c);
-        $controller = $subject;#preg_replace("/\s+/", '', $subject);
+        $controller = $subject;
 
         //=sh
         // 检测类
@@ -47,6 +51,9 @@ class Dispatcher
             array(null, 'index', ucfirst($module), lcfirst($controller)),
             array(null, 'index', 'Index', $module),
         );
+        $ucfirst = Arr::ucFirst($uriInfo['controller']);
+
+        var_dump($expression = [__FILE__, __LINE__, $class_map, $controller, $subject, $uriInfo, ucfirst($uriInfo['controller']), ucfirst($uriInfo['controller']), $ucfirst]);exit;
         if ($extra && $theme) {
             $ex = str_replace(["{t}"], array($theme), $extra);
             array_unshift($class_map, array($ex, $module, $controller, null));
