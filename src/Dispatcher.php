@@ -2,12 +2,12 @@
 
 namespace MagicCube;
 
-use Ext\Arr;
+use Ext\Str;
 
 class Dispatcher
 {
-    const VERSION = '23.6.24';
-    const REVISION = 8;
+    const VERSION = '23.6.25';
+    const REVISION = 9;
 
     public static $uri = null;
     public static $glob = null;
@@ -37,23 +37,27 @@ class Dispatcher
 
         // 大小写标准化
         $c = preg_replace("/[\-]+/", ' ', $controller);
-        $subject = ucwords($c);
-        $controller = $subject;
+
+        $ulArr = self::getUlArr($module, $c);
+        extract($ulArr);
+
+        $controller = $controller_ucwords;
 
         //=sh
         // 检测类
-        $module = is_numeric($module) ? 'index' : lcfirst($module);
-        $controller = is_numeric($controller) ? 'Index' : ucfirst($controller);
+        $module = is_numeric($module) ? 'index' : $module_lcfirst;
+        $controller = is_numeric($controller) ? 'Index' : $controller_ucfirst;
+
         $theme = self::$glob::conf("module.$module.theme");
         $class_map = array(
             array(null, $module, $controller, null),
-            array(null, $module, 'Index', lcfirst($controller)),
-            array(null, 'index', ucfirst($module), lcfirst($controller)),
+            array(null, $module, 'Index', $controller_lcfirst),
+            array(null, 'index', $module_ucfirst, $module_lcfirst),
             array(null, 'index', 'Index', $module),
         );
-        $ucfirst = Arr::ucFirst($uriInfo['controller']);
 
-        var_dump($expression = [__FILE__, __LINE__, $class_map, $controller, $subject, $uriInfo, ucfirst($uriInfo['controller']), ucfirst($uriInfo['controller']), $ucfirst]);exit;
+
+
         if ($extra && $theme) {
             $ex = str_replace(["{t}"], array($theme), $extra);
             array_unshift($class_map, array($ex, $module, $controller, null));
@@ -132,5 +136,17 @@ class Dispatcher
             'action' => $action,
             'param' => $param,
         );
+    }
+
+    public static function getUlArr($module, $controller_preg_replace)
+    {
+        $module_lcfirst = Str::lcFirst($module);
+        $module_ucfirst = Str::ucFirst($module);
+
+        $controller_ucwords = Str::ucWords($controller_preg_replace);
+        $controller_ucfirst = Str::ucFirst($controller_ucwords);
+        $controller_lcfirst = Str::lcFirst($controller_ucwords);
+
+        return get_defined_vars();
     }
 }
