@@ -6,8 +6,20 @@ use Ext\Str;
 
 class Dispatcher
 {
-    const VERSION = '23.6.25';
-    const REVISION = 9;
+    const VERSION = '23.7.27';
+    const EDITION = array(
+        10,
+        6,
+        2,
+        1,
+        0,
+        19,
+        'Jfba S',
+        '',
+        181,
+        4574,
+    );
+    const REVISION = 10;
 
     public static $uri = null;
     public static $glob = null;
@@ -42,11 +54,12 @@ class Dispatcher
         extract($ulArr);
 
         $controller = $controller_ucwords;
+        $controller = static::getControllerName($c);
 
         //=sh
         // 检测类
         $module = is_numeric($module) ? 'index' : $module_lcfirst;
-        $controller = is_numeric($controller) ? 'Index' : $controller_ucfirst;
+        $controller = is_numeric($controller) ? 'Index' : $controller;
 
         $theme = self::$glob::conf("module.$module.theme");
         $class_map = array(
@@ -130,12 +143,14 @@ class Dispatcher
         $controller = $array ? array_shift($array) : $c;
         $action = $array ? array_shift($array) : $a;
         $param = $array;
-        return array(
+        $return_values = array(
             'module' => $module,
             'controller' => $controller,
             'action' => $action,
             'param' => $param,
         );
+
+        return $return_values;
     }
 
     public static function getUlArr($module, $controller_preg_replace)
@@ -148,5 +163,18 @@ class Dispatcher
         $controller_lcfirst = Str::lcFirst($controller_ucwords);
 
         return get_defined_vars();
+    }
+
+
+
+    //
+    public static function getControllerName($controller_preg_replace)
+    {
+        $controller_ucwords = Str::ucWords(strtolower($controller_preg_replace));
+        $controller_name = preg_replace("/[\s]+/", '', $controller_ucwords);
+
+
+
+        return $controller_name;
     }
 }
