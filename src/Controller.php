@@ -8,7 +8,9 @@ use Ext\Variable;
 
 class Controller
 {
-    const VERSION = '22.5.28';
+    const VERSION = '23.7.27';
+    const REVISION = 18;
+
     /*
     参数
     */
@@ -127,6 +129,15 @@ class Controller
     {
         $actionable = static::$vars['actionable'] ?? null;
         $uriInfo =& static::$vars['uriInfo'];
+
+
+        $use_function_fix_action_name = true;
+        if (is_numeric($uriInfo['action'])) {
+            $uriInfo['act'] = '_numeric';
+            $use_function_fix_action_name = false;
+        }
+
+
         $result_values = Planet::isFixedAction($uriInfo);
         $methods = get_class_methods($this);
 
@@ -135,14 +146,14 @@ class Controller
             $actionName = $uriInfo['act'];
         }
 
-        $actionName = Planet::fixActionName($actionName);
+        $actionName = $use_function_fix_action_name ? Planet::fixActionName($actionName) : $actionName;
         if (!in_array($actionName, $methods)) {
             if ($actionable) {
                 $actionName = static::$vars['actionable'] ?? 'index';
             }
         }
 
-        $var = call_user_func_array(array($this, $actionName), $uriInfo['param']);
+        $var = call_user_func_array(array($this, $actionName), $uriInfo);
         if (true === $this->enableView) {
             static::_render($uriInfo, $var);
         } elseif (is_int($this->enableView) || is_string($this->enableView)) {
