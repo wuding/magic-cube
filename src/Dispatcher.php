@@ -6,7 +6,7 @@ use Ext\Str;
 
 class Dispatcher
 {
-    const VERSION = '23.7.27';
+    const VERSION = '23.9.2';
     const EDITION = array(
         10,
         6,
@@ -19,7 +19,7 @@ class Dispatcher
         181,
         4574,
     );
-    const REVISION = 10;
+    const REVISION = 11;
 
     public static $uri = null;
     public static $glob = null;
@@ -33,7 +33,7 @@ class Dispatcher
         }
     }
 
-    public static function dispatch($return = null, $ns = null, $extra = null)
+    public static function dispatch($return = null, $ns = null, $extra = null, $origin_request_uri = null)
     {
         //=s
         $ns = $ns ?: "app\{m}\controller\{c}";
@@ -44,7 +44,7 @@ class Dispatcher
 
         //=z
         $uri = self::$uri;
-        $uriInfo = self::parseUri($uri);
+        $uriInfo = self::parseUri($uri, null, $origin_request_uri);
         extract($uriInfo);
 
         // 大小写标准化
@@ -130,8 +130,12 @@ class Dispatcher
         return $obj;
     }
 
-    public static function parseUri($str = null, $prefix = null)
+    public static function parseUri($str = null, $prefix = null, $origin_request_uri = null)
     {
+        if (preg_match("/\/unicode/", $str)) {
+            $str = $origin_request_uri ?: $str;
+        }
+
         $prefix = $prefix ?: self::$prefix;
         $str = $prefix . $str;
         $m = 'index';
@@ -149,7 +153,9 @@ class Dispatcher
             'action' => $action,
             'param' => $param,
         );
-
+// var_dump($expression = [__FILE__, __LINE__,
+// get_defined_vars(),
+// ]);exit;
         return $return_values;
     }
 
