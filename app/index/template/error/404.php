@@ -32,5 +32,8 @@ p a:hover {
 <footer title="<?=__FILE__?>">
 <a href="https://github.com/wuding/magic-cube">MagicCube</a> Version <?=$version?>
 </footer>
+<?php
+print_r(get_defined_vars());
+?>
 </body>
 </html>
