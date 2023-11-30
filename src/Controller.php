@@ -8,8 +8,8 @@ use Ext\Variable;
 
 class Controller
 {
-    const VERSION = '23.7.27';
-    const REVISION = 18;
+    const VERSION = '23.12.1';
+    const REVISION = 19;
 
     /*
     参数
@@ -153,7 +153,9 @@ class Controller
             }
         }
 
-        $var = call_user_func_array(array($this, $actionName), $uriInfo);
+        $args = array_values($uriInfo);
+        $var = call_user_func_array(array($this, $actionName), $args);
+
         if (true === $this->enableView) {
             static::_render($uriInfo, $var);
         } elseif (is_int($this->enableView) || is_string($this->enableView)) {
