@@ -8,8 +8,8 @@ use Ext\Variable;
 
 class Controller
 {
-    const VERSION = '23.12.1';
-    const REVISION = 19;
+    const VERSION = '24.7.15';
+    const REVISION = 20;
 
     /*
     参数
@@ -48,7 +48,7 @@ class Controller
     /*
     开关
     */
-    protected $enableView = true;
+    public $enableView = true;
     public $moduleConfig = true;
 
     // 初始化
@@ -87,10 +87,16 @@ class Controller
 
         // 22.5.12
         $uriInfo =& static::$vars['uriInfo'];
-        $result_values = Planet::actionIsNumeric($uriInfo['action']);
+        $result_values = Planet::actionIsNumeric($uriInfo['controller']);
         if (true === $result_values) {
-            $uriInfo['param'] = array($uriInfo['action']);
-            $uriInfo['act'] = '_numeric';
+            $uriInfo['action'] = $uriInfo['controller'];
+            $uriInfo['controller'] = 'Index';
+        } else {
+            $result_values = Planet::actionIsNumeric($uriInfo['action']);
+            if (true === $result_values) {
+                $uriInfo['param'] = array($uriInfo['action']);
+                $uriInfo['act'] = '_numeric';
+            }
         }
     }
 
@@ -162,6 +168,7 @@ class Controller
             // print_r($var);
             Variable::pRvDvEdZvalD($this->enableView, [$var]);
         }
+        exit;
     }
 
     // 缺省动作 - 未找到页面
