@@ -1,0 +1,20 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+; 艾夕然 - 以后谁爱我我爱谁
+; 以后谁爱我我爱谁
+; 0:00:03
+; 谁陪我我就陪谁
+; 0:00:05
+; 再也不会为不爱我的掉眼泪
+; 0:00:07
