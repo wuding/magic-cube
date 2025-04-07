@@ -1,6 +1,6 @@
 # MagicCube - Module & Controller
 
-
+2.250109
 
 ## 实现过程
 
@@ -45,3 +45,46 @@ HTTP 请求方法和请求地址转换标准化后的句柄
 
 - 未找到：_notfound
 - 缺省：_default
+
+
+## 步骤
+
+分割 /
+
+片段类型 int double str nul
+
+匹配规则
+
+~[a-z]~
+
+~[a-z]~i
+
+[a-z\-\.]
+
+_
+
+\s
+
+\w
+
+非英文
+
+| gettype           | is_       |      |
+| ----------------- | --------- | ---- |
+| array             |           |      |
+| boolean           | bool      |      |
+|                   | callable  |      |
+|                   | countable |      |
+| double            | 别名      |      |
+|                   | float     |      |
+| integer           | 别名      |      |
+|                   | int       |      |
+|                   | iterable  |      |
+| NULL              | null      |      |
+|                   | numeric   |      |
+| object            |           |      |
+| resource          |           |      |
+| resource (closed) | -         |      |
+|                   | scalar    |      |
+| string            |           |      |
+| unknown type      | -         |      |
