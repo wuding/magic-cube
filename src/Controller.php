@@ -8,8 +8,8 @@ use Ext\Variable;
 
 class Controller
 {
-    const VERSION = '24.7.15';
-    const REVISION = 20;
+    const VERSION = 26.0206;
+    const REVISION = 21;
 
     /*
     参数
@@ -229,14 +229,24 @@ class Controller
     public static function _render($uriInfo = array(), $var = array(), $return = null)
     {
         global $template;
+        $pattern = "#[\\\]+#";
+        $srcDir = preg_replace($pattern, '/', $uriInfo['srcDir'] ?? null);
         $script = strtolower($uriInfo['controller']) .'/'. $uriInfo['action'];
         // 计划：使用模板（类似调度器类里控制器类名模板）
         $theme = $uriInfo['theme'] ?? null;
-        $srcDir = static::$srcDir ? '/'. static::$srcDir : null;
+        $srcDir = static::$srcDir ? '/'. static::$srcDir : $srcDir;
         $themeDir = $theme ? "/theme/$theme" : null;
         $templateDir = static::$templateDir ?: ROOT .'/app/'. strtolower($uriInfo['module']). $srcDir  . $themeDir . '/template';
         $template->setTemplateDir($templateDir);
-        $what = $template->render(static::$script ?: $script, static::$data ?: $var);
+        $render = [
+            'script' => static::$script ?: $script,
+            'vars' => static::$data ?: $var,
+        ];
+        $what = $template->render($render['script'], $render['vars']);
+
+        // unset($template, $what);
+        // print_r([__LINE__, __FILE__, get_defined_vars()]);die;
+
         // 带头信息的输出
         if (null === $return) {
             static::_response($what);
